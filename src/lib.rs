@@ -1,4 +1,7 @@
 use std::fs::{File, OpenOptions};
+use std::io::stdin;
+use std::error;
+use colored::*;
 use std::io::{self, Read, Write, BufWriter};
 
 pub struct Config{
@@ -37,6 +40,26 @@ pub fn open_and_read_file(config: &Config) -> String {
     }
 }
 
+pub fn content(config: &Config) -> Result<String, Box<dyn error::Error>>{
+   let content = open_and_read_file(&config);
+    println!("{}","Current file content:\n".blue());
+    println!("{}", content.green());
+    
+    println!("\n{}","Enter your new content (type 'END' on a new line to finish editing):".red());
+    
+    let mut new_content = String::new();
+    loop {
+        let mut line = String::new();
+        stdin().read_line(&mut line)?;
+        
+        if line.trim() == "END" {
+            break;
+        }
+        
+        new_content.push_str(&line);
+    }
+    Ok(new_content)
+}
 pub fn save_to_file(config: &Config, content: &String) -> Result<(), io::Error> {
     let file = OpenOptions::new()
         .write(true)
